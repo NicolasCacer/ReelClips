@@ -139,15 +139,121 @@ El sistema adopta una arquitectura de **Monolito Modular**, permitiendo mantener
 ```text
 src/main/java/com/reelclips/
 │
-├── ReelClipsApplication.java
+├── ReelClipsApplication.java ← Main (paquete raíz)
 │
 ├── usuarios/
+│ ├── api/
+│ │ ├── UsuarioModuloApi.java ← Interfaz pública del módulo
+│ │ └── dto/
+│ │ ├── UsuarioInfo.java ← DTO público (record)
+│ │ └── PerfilInfo.java ← DTO público (record)
+│ ├── internal/
+│ │ ├── model/
+│ │ │ ├── Usuario.java ← Entidad JPA
+│ │ │ └── Canal.java ← Entidad JPA
+│ │ ├── repository/
+│ │ │ ├── UsuarioRepository.java
+│ │ │ └── CanalRepository.java
+│ │ └── service/
+│ │ └── UsuarioService.java ← RF-01 al RF-06
+│ └── UsuariosModulo.java ← Fachada (implementa UsuarioModuloApi)
+│
 ├── reels/
+│ ├── api/
+│ │ ├── ReelModuloApi.java ← Interfaz pública del módulo
+│ │ └── dto/
+│ │ └── ReelInfo.java ← DTO público (record)
+│ ├── internal/
+│ │ ├── model/
+│ │ │ └── Reel.java ← Entidad JPA
+│ │ ├── repository/
+│ │ │ └── ReelRepository.java
+│ │ ├── proxy/
+│ │ │ ├── ProxyReel.java ← Patrón Proxy
+│ │ │ ├── CacheVideo.java
+│ │ │ ├── ServicioAutorizacion.java
+│ │ │ ├── ServicioAlmacenamientoVideo.java
+│ │ │ └── VideoStream.java
+│ │ └── service/
+│ │ └── ReelService.java ← RF-07 al RF-11 · usa UsuarioModuloApi
+│ └── ReelsModulo.java ← Fachada (implementa ReelModuloApi)
+│
 ├── categorias/
+│ ├── api/
+│ │ ├── CategoriaModuloApi.java ← Interfaz pública del módulo
+│ │ └── dto/
+│ │ └── CategoriaInfo.java ← DTO público (record)
+│ ├── internal/
+│ │ ├── model/
+│ │ │ └── Categoria.java ← Entidad JPA
+│ │ ├── repository/
+│ │ │ └── CategoriaRepository.java
+│ │ └── service/
+│ │ ├── ServicioFiltroCategorias.java ← RF-21
+│ │ └── ServicioAdminCategorias.java ← RF-19 (admin)
+│ └── CategoriasModulo.java ← Fachada (implementa CategoriaModuloApi)
+│
 ├── feed/
+│ ├── api/
+│ │ └── dto/
+│ │ └── FeedResponse.java ← DTO de respuesta paginada
+│ ├── internal/
+│ │ └── service/
+│ │ ├── ServicioFiltroVisibilidad.java ← RF-20, RN-10, RN-12
+│ │ └── ServicioPaginacion.java ← RF-22, RN-14
+│ └── FacadeFeed.java ← Patrón Facade · usa Reels, Categorias, Usuarios
+│
 ├── interacciones/
+│ ├── api/
+│ │ └── dto/
+│ │ └── InteraccionInfo.java
+│ ├── internal/
+│ │ ├── model/
+│ │ │ ├── Reaccion.java ← Entidad JPA · RF-12, RF-13
+│ │ │ ├── Comentario.java ← Entidad JPA · RF-14, RF-15
+│ │ │ └── EventoInteraccion.java ← Entidad de evento
+│ │ ├── repository/
+│ │ │ ├── ReaccionRepository.java
+│ │ │ └── ComentarioRepository.java
+│ │ ├── observer/
+│ │ │ ├── IObservador.java ← Interfaz Observer
+│ │ │ ├── PublicadorEventosInteraccion.java ← Subject
+│ │ │ ├── NotificadorAutor.java ← Observer
+│ │ │ ├── ActualizadorMetricas.java ← Observer
+│ │ │ └── AnalizadorActividad.java ← Observer
+│ │ └── service/
+│ │ └── InteraccionService.java ← RF-12 al RF-15 · usa ReelModuloApi
+│ └── InteraccionesModulo.java
+│
 ├── chat/
+│ ├── api/
+│ │ └── dto/
+│ │ ├── ConversacionInfo.java
+│ │ └── MensajeInfo.java
+│ ├── internal/
+│ │ ├── model/
+│ │ │ ├── Conversacion.java ← Entidad JPA
+│ │ │ ├── ParticipanteConversacion.java ← Entidad JPA
+│ │ │ └── Mensaje.java ← Entidad JPA
+│ │ ├── repository/
+│ │ │ ├── ConversacionRepository.java
+│ │ │ └── MensajeRepository.java
+│ │ └── service/
+│ │ └── ChatService.java ← RF-16, RF-17 · usa UsuarioModuloApi
+│ └── ChatModulo.java
+│
 └── shared/
+ ├── db/
+ │ └── ConexionBD.java ← Patrón Singleton
+ ├── enums/
+ │ ├── EstadoReel.java
+ │ ├── EstadoCuenta.java
+ │ └── TipoMensaje.java
+ └── exception/
+ ├── ReglaNegocioException.java
+ ├── RecursoNoEncontradoException.java
+ ├── AccesoDenegadoException.java
+ └── GlobalExceptionHandler.java
 ```
 
 ## 🧩 Patrones de diseño aplicados
